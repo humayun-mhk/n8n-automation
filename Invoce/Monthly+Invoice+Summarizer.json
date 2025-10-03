@@ -1,0 +1,905 @@
+{
+  "name": "Monthly Invoice Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "17km7-tfMcYnKIkoqYKn_lQ263ymy_pn_",
+          "mode": "list",
+          "cachedResultName": "Monthly Invoices",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/17km7-tfMcYnKIkoqYKn_lQ263ymy_pn_"
+        },
+        "event": "folderCreated"
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "01b515c2-847b-4dd1-9517-28458f7cdfeb",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TTVT9k7AcKDwgM8g",
+          "name": "Google Drive account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "eaf1b0a2-41c3-4fba-962e-64b7fac1f1b5",
+      "name": "Wait for 2 Minutes",
+      "webhookId": "ae6f7428-e965-4b30-863c-435daf88d1b5"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $json.id }}' in parents and trashed = false\n",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        640,
+        0
+      ],
+      "id": "585ddda2-330b-4306-a42c-5457a703df81",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TTVT9k7AcKDwgM8g",
+          "name": "Google Drive account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        840,
+        0
+      ],
+      "id": "0138add1-9688-409d-911b-7c3a0a686f49",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TTVT9k7AcKDwgM8g",
+          "name": "Google Drive account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        0
+      ],
+      "id": "c02e4ad8-291b-457a-9bfa-fea5f3c1b1c5",
+      "name": "Extract from File",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1340,
+        160
+      ],
+      "id": "a3c8e01f-914a-4b6a-ac6a-0c576c64c4a5",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "0qLMfnxIrfTptc0E",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"status\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1560,
+        160
+      ],
+      "id": "1d13c41d-4ca4-4c77-a3df-0033b454fc37",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b5cbcaf4-583b-425c-b3e8-02789d87ec20",
+              "leftValue": "={{ $json.output.status }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        0
+      ],
+      "id": "a9d53730-9770-4764-b323-2749ff4b4930",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on the text decide if the text is about an invoice or not: {{ $json.text }}\n\nIf yes return \"yes\", if no return \"no\". Don't provide any additional information. Use only small letters",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        0
+      ],
+      "id": "0e9519da-0fa1-4327-8a15-eac371303ee0",
+      "name": "Invoice Controller"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=** Task Overview **\nYou’ll receive raw text extracted from PDF invoices. Your job is to identify the key details listed below and return them in a structured JSON object.\n\n** Information to Capture **\n\ninvoice_name – the identifier or title of the invoice\ncompany_name – the name of the business that issued the invoice\ntotal_invoice_amount – the grand total shown on the invoice\ncategory - choose the most proper category for invoice. ONLY take on out of the following categories:\nSoftware & Tools, Business Operations, Marketing & Sales, Education & Learning, Subscription, Content Creation, Web & Hosting, Team & Collaboration, Other\n\n\nOutput Format (example)\n{\n  \"invoice_name\": \"Invoice ABC-123\",\n  \"company_name\": \"Acme Corp\",\n  \"total_invoice_amount\": 1000,\n  \"month\": \"April\",\n  \"category\": \"Other\"\n}\n\nGuidelines\n\nIf any detail is missing or unclear, make your best estimate or use null.\n\nProvide the most specific line-item labels available; use generic placeholders only when no description exists.\n\nVerify that the line-item amounts add up to the total invoice amount (minor rounding differences are acceptable).\n\nInput Placeholder\nText: {{ $('Extract from File').item.json.text }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2140,
+        -20
+      ],
+      "id": "6523da98-3b84-4101-b3c9-67ee6e667223",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2120,
+        160
+      ],
+      "id": "091d6b59-c862-42e3-b02e-b0a01964e31c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "0qLMfnxIrfTptc0E",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"invoice_name\": \"Invoice ABC-123\",\n  \"company_name\": \"Acme Corp\",\n  \"total_invoice_amount\": 1000,\n  \"month\": \"April\",\n  \"category\": \"Web & Hosting\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2300,
+        160
+      ],
+      "id": "333dd58a-b12d-40c1-99cc-124168af9417",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "22bccdb2-3d99-81b5-af9b-e8726583dc29",
+          "mode": "list",
+          "cachedResultName": "All Invoices",
+          "cachedResultUrl": "https://www.notion.so/22bccdb23d9981b5af9be8726583dc29"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Month|title",
+              "title": "={{ $json.output.month }}"
+            },
+            {
+              "key": "Invoice_From|rich_text",
+              "textContent": "={{ $json.output.company_name }}"
+            },
+            {
+              "key": "Amount|number",
+              "numberValue": "={{ $json.output.total_invoice_amount }}"
+            },
+            {
+              "key": "Category|select",
+              "selectValue": "={{ $json.output.category }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        2540,
+        -20
+      ],
+      "id": "695f6597-ab8a-4d6d-9692-79015cd42537",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "JnL07o1ynWmdetnf",
+          "name": "Notion account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        300
+      ],
+      "id": "181a9b45-d54e-4cee-9e6c-c8452133be6a",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "0qLMfnxIrfTptc0E",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        200
+      ],
+      "id": "1a4f03bb-21d0-4de6-9773-862cb016551d",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        3560,
+        200
+      ],
+      "id": "9b08b7dd-4bd4-4088-89d4-1c3e32069b87",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Amounts in $, please sum it up: {{ $('Aggregate').item.json.property_amount }}. Only return plain number with currency. Also return number of invoices based on number of numbers",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3380,
+        -20
+      ],
+      "id": "8c2715aa-7fb8-4365-a4f9-e57423a5529a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "property_amount"
+            },
+            {
+              "fieldToAggregate": "property_invoice_from"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2760,
+        -20
+      ],
+      "id": "76929f93-9ae3-4ec1-a923-1f95c965501f",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3400,
+        200
+      ],
+      "id": "3b200ca3-0e14-46ce-be44-998c83b54db2",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "0qLMfnxIrfTptc0E",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\"amount\": \"\",\n\"invoices_amount\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3700,
+        200
+      ],
+      "id": "5a481956-c5be-48c5-a2b3-6db4e153990d",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "22bccdb2-3d99-804d-9203-fc0d6e942ba8",
+          "mode": "list",
+          "cachedResultName": "Monthly Summary in PDF Format",
+          "cachedResultUrl": "https://www.notion.so/22bccdb23d99804d9203fc0d6e942ba8"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Month|title",
+              "title": "={{ $('Basic LLM Chain').first().json.output.month }}"
+            },
+            {
+              "key": "Total Amount|rich_text",
+              "textContent": "={{ $json.output.amount }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        3760,
+        -20
+      ],
+      "id": "a14ea0f2-08fb-47b2-a2b3-e82e921d05cd",
+      "name": "Create a database page1",
+      "credentials": {
+        "notionApi": {
+          "id": "JnL07o1ynWmdetnf",
+          "name": "Notion account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "='{{ $('Google Drive Trigger').item.json.parents[0] }}' in parents and trashed = false\n",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3320,
+        1000
+      ],
+      "id": "bb0bb9b3-e94e-49b4-a8ce-af19714a5c9b",
+      "name": "Search files and folders1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TTVT9k7AcKDwgM8g",
+          "name": "Google Drive account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3540,
+        1000
+      ],
+      "id": "8b27b83c-dc39-4160-a6f8-fb5bdb6afe83",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TTVT9k7AcKDwgM8g",
+          "name": "Google Drive account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $('Google Drive Trigger').item.json.name }}",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "17km7-tfMcYnKIkoqYKn_lQ263ymy_pn_",
+            "mode": "list",
+            "cachedResultName": "Monthly Invoices",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/17km7-tfMcYnKIkoqYKn_lQ263ymy_pn_"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        420,
+        0
+      ],
+      "id": "253f7f8c-35e1-4957-b89b-b5b4c097702a",
+      "name": "Search for folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TTVT9k7AcKDwgM8g",
+          "name": "Google Drive account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -420,
+        -240
+      ],
+      "id": "4b4a41c2-162d-44bf-81b4-4ddc6d96d78a",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Optional: Delete Folder & Invoices",
+        "height": 560,
+        "width": 920
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3020,
+        780
+      ],
+      "id": "c3d237da-b0d0-4e89-ae59-030fc6b21ae9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "sendTo": "krystian7431@gmail.com",
+        "subject": "=Invoice Summary for {{ $('Google Drive Trigger').item.json.name }} is Ready!",
+        "emailType": "text",
+        "message": "=Hi,\n\nHere’s your invoice summary for {{ $('Google Drive Trigger').item.json.name }}:\n\n🧾 Total Amount: {{ $('AI Agent').item.json.output.amount }}\n\n🥇 Number of invoices: {{ $('AI Agent').item.json.output.invoices_amount }}\n\n✉️ Invoices From: {{ $('Edit Fields').item.json.invoices }}\n\nThe full report has been saved to Notion.\n\nBest,\nAI Krystian\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4020,
+        -20
+      ],
+      "id": "ef2e7f17-9b34-491b-91ce-f3dd15ed6924",
+      "name": "Send a message",
+      "webhookId": "146b6403-004a-4c90-a91a-103537e37fa4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lFEqkhcaTtYQk41l",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "79f05222-05d4-4fbf-b188-40fd8f77d0e7",
+              "name": "invoices",
+              "value": "={{ $json.property_invoice_from }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3020,
+        -20
+      ],
+      "id": "1baa30eb-ec4f-4aff-a33b-3e56fc4e8e18",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait for 2 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for 2 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Search for folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Invoice Controller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Invoice Controller",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Invoice Controller",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Controller": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders1": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search for folder": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c161b4f0-6f3e-4c6c-a3fa-cffe7ed23773",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f96a7e8659163312cbaf16ad76688747ea79fa6bf8e4ec720c14444abdf2c12c"
+  },
+  "id": "4F0J2RJbNtlyByhD",
+  "tags": []
+}

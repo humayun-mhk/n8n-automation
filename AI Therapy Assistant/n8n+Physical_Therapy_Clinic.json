@@ -1,0 +1,420 @@
+{
+  "name": "Physical Therapy Clinic",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "589ccb52-fc47-466d-90dd-cdf1ec62a886",
+        "options": {}
+      },
+      "id": "5aac0d0d-1182-41b9-9a86-892ec432e48a",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        -20
+      ],
+      "webhookId": "589ccb52-fc47-466d-90dd-cdf1ec62a886"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d972b258-aead-47d9-94c1-f6397eaa20f7",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        380,
+        220
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "LSihAOI8NTU3m5ce",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "n8ndemos@gmail.com",
+        "subject": "New appointment booked",
+        "message": "={{ $fromAI('Message') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "6c38135b-868e-437b-b95a-cd6646ef7847",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        260
+      ],
+      "webhookId": "e74c4fb3-dd49-4aaf-846d-81b38bf508e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iSAipyI2YPiTmbrF",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body }}"
+      },
+      "id": "996c8d99-7976-4a08-8ac3-9b965143f248",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        620,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f9c674b1-ab06-442a-9db2-496942ab519c",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "LSihAOI8NTU3m5ce",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "damiandan06@gmail.com",
+        "subject": "New appointment booked",
+        "message": "={{ $fromAI('Message') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "afb54071-3dad-4adf-99f6-f1d8293f979b",
+      "name": "Gmail1",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1920,
+        240
+      ],
+      "webhookId": "e74c4fb3-dd49-4aaf-846d-81b38bf508e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iSAipyI2YPiTmbrF",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body }}"
+      },
+      "id": "db363878-d31d-42d6-858f-397d5309d223",
+      "name": "Window Buffer Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        1740,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant specialized in summarizing call transcripts. Your task is to extract only the most important and relevant details from the conversation. Always focus on:\n\n✅ Client's Name & Contact Info\n✅ Reason for the Call (Symptoms, Issue, or Concern)\n✅ Additional Notes from the Client\n\nSummarise {{ $json.body.call.transcript }} \n\nCurrent Date/Time: {{ $now }}\n\n\nGenerate a structured appointment confirmation email using HTML. Ensure clear bullet points and proper formatting for readability.\n\nExample Output:\n\nA new client has booked an appointment with you.\n\n\n📌 Client Name: [Extracted Name]\n📧 Email: [Extracted Email]\n📞 Phone: [Extracted Phone or 'No information provided']\n🩺 Issue: [Extracted Symptoms/Reason for Call]\n📅 Appointment: [Extracted Appointment Time]\n📝 Additional Notes: [Any Extra Details Provided]\n\nEnsure proper line breaks and HTML formatting for a clean display in emails.\n\n\n#Tools\n\nUse gmail tool to send emails.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "3e3554e3-98e3-4aa5-b8be-7dbe8b5d26df",
+      "name": "AI Agent Rob",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1640,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "74d6debc-7f1e-4bf2-8e01-1f7b3eed05e8",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        740
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "LSihAOI8NTU3m5ce",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "damiandan06@gmail.com",
+        "subject": "New appointment booked",
+        "message": "={{ $fromAI('Message') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "c30c4de9-f74e-4a74-a4cf-c4e0e56f4f01",
+      "name": "Gmail2",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1420,
+        720
+      ],
+      "webhookId": "e74c4fb3-dd49-4aaf-846d-81b38bf508e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iSAipyI2YPiTmbrF",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body }}"
+      },
+      "id": "c8f2f693-23f1-4d65-980b-38865de3ff26",
+      "name": "Window Buffer Memory2",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "path": "ea8fb164-1f0c-490c-8881-d30031903047",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        880,
+        480
+      ],
+      "id": "b7451efc-e382-43ed-8c21-7ffdcc5f8676",
+      "name": "Webhook1",
+      "webhookId": "ea8fb164-1f0c-490c-8881-d30031903047"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant specialized in summarizing call transcripts. Your task is to extract only the most important and relevant details from the conversation. Always focus on:\n\n✅ Client's Name & Contact Info\n✅ Reason for the Call (Symptoms, Issue, or Concern)\n✅ Additional Notes from the Client\n\nSummarise {{ $json.body.call.transcript }} \n\nCurrent Date/Time: {{ $now }}\n\n\nGenerate a structured appointment confirmation email using HTML. Ensure clear bullet points and proper formatting for readability.\n\nExample Output:\n\nA new client has booked an appointment with you.\n\n\n📌 Client Name: [Extracted Name]\n📧 Email: [Extracted Email]\n📞 Phone: [Extracted Phone or 'No information provided']\n🩺 Issue: [Extracted Symptoms/Reason for Call]\n📅 Appointment: [Extracted Appointment Time]\n📝 Additional Notes: [Any Extra Details Provided]\n\nEnsure proper line breaks and HTML formatting for a clean display in emails.\n\n\n#Tools\n\nUse gmail tool to send emails.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "5d5b6cee-8a42-4ead-98e6-439a8c9a381a",
+      "name": "AI Agent Emily",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1140,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "path": "75d37ec0-8d02-4d62-ab9a-4cf0e4aa5940",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        -20
+      ],
+      "id": "83408af5-e947-484d-b082-04e8c49ea49e",
+      "name": "Webhook2",
+      "webhookId": "75d37ec0-8d02-4d62-ab9a-4cf0e4aa5940"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant specialized in summarizing call transcripts. Your task is to extract only the most important and relevant details from the conversation. Always focus on:\n\n✅ Client's Name & Contact Info\n✅ Reason for the Call (Symptoms, Issue, or Concern)\n✅ Additional Notes from the Client\n\nSummarise {{ $json.body.call.transcript }} \n\nCurrent Date/Time: {{ $now }}\n\n\nGenerate a structured appointment confirmation email using HTML. Ensure clear bullet points and proper formatting for readability.\n\nExample Output:\n\nA new client has booked an appointment with you.\n\n\n📌 Client Name: [Extracted Name]\n📧 Email: [Extracted Email]\n📞 Phone: [Extracted Phone or 'No information provided']\n🩺 Issue: [Extracted Symptoms/Reason for Call]\n📅 Appointment: [Extracted Appointment Time]\n📝 Additional Notes: [Any Extra Details Provided]\n\nEnsure proper line breaks and HTML formatting for a clean display in emails.\n\n\n#Tools\n\nUse gmail tool to send emails.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "id": "cba211fb-6d5c-4cf6-b3de-0d304ef7092b",
+      "name": "AI Agent Kate",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        640,
+        -20
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Kate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Kate",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Kate",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Kate",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Rob",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Rob",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Rob",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Emily",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Emily",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Emily",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Emily",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Rob",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "13bb29da-76de-4631-8be3-73715d37173e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae59e6b831344dba624c99cbe778a4bc47150f8e64de86a8011d15bac8e58c21"
+  },
+  "id": "ovIeP2Aau5NyjhM7",
+  "tags": []
+}

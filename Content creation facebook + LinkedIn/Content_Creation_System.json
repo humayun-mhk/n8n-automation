@@ -1,0 +1,490 @@
+{
+  "name": "Content Creation System",
+  "nodes": [
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "title, raw_content",
+        "options": {}
+      },
+      "id": "5c8cfbe9-a48c-4725-9e16-0999a111f5cc",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        240,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "id": "73f5737d-3318-4df8-ba8f-da6a4bdda73a",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        60,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "15d3ea79-f90c-4eca-b69a-af981bef580a",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        820,
+        100
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QivR7SxB24l8KozV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "d160f81d-22b9-415e-8a74-93aae9d9da7f",
+      "name": "OpenAI Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        -60
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QivR7SxB24l8KozV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1B5Gg1KkWHXvD-n3mzdzRKYzfutY7zxOIYa_dVyvl76s",
+          "mode": "list",
+          "cachedResultName": "Social Media Content",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1B5Gg1KkWHXvD-n3mzdzRKYzfutY7zxOIYa_dVyvl76s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/139g8ULrzBTi7GSSCAm7lXR8mDdc6IiKr8XXV_eN01lo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Campaign": "={{ $('Google Sheets Trigger').item.json.Campaign }}",
+            "Linkdein": "={{ $('LinkedIn').item.json.output }}",
+            "Facebook": "={{ $('Facebook').item.json.output }}",
+            "Blog ": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "Campaign"
+          ],
+          "schema": [
+            {
+              "id": "Campaign",
+              "displayName": "Campaign",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content Subject",
+              "displayName": "Content Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Target Audience",
+              "displayName": "Target Audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Linkdein",
+              "displayName": "Linkdein",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Facebook",
+              "displayName": "Facebook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Blog ",
+              "displayName": "Blog ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0180ea2c-ceee-4b2b-9469-7c9078040b6c",
+      "name": "Update Campaign",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1600,
+        -40
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RNwKb4ui91TeJRRZ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9a9c8151-d3a0-4daa-bb24-4fd7a0001518",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        460,
+        -80
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "QivR7SxB24l8KozV",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1B5Gg1KkWHXvD-n3mzdzRKYzfutY7zxOIYa_dVyvl76s",
+          "mode": "list",
+          "cachedResultName": "Social Media Content",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1B5Gg1KkWHXvD-n3mzdzRKYzfutY7zxOIYa_dVyvl76s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1B5Gg1KkWHXvD-n3mzdzRKYzfutY7zxOIYa_dVyvl76s/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "ea2ea810-c80f-4089-a520-8d314f1d54d1",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        20
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "VOKTFzg0EEff1nLF",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b493a3c6-939a-4301-9257-055b80c28d7a",
+              "name": "query",
+              "value": "={{ $json['Content Subject'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e2813669-08fd-4d0d-a215-b0634032330b",
+              "name": "targetAudience",
+              "value": "={{ $json['Target Audience'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "67cdd8b0-5c62-44e5-a770-da29d98a7bf5",
+      "name": "Set Search Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $('Aggregate').item.json.data.toJsonString() }}\n\nTarget Audience:\n{{ $('Set Search Fields').item.json.targetAudience }}",
+        "options": {
+          "systemMessage": "=** System Role **\n\nYou are a skilled and creative blog writer capable of crafting engaging, concise, and well-structured two-paragraph blog articles based on provided content.\n\n\n** Task Specification **\n\nWrite a two-paragraph blog article using the provided content\n\nEnsure the blog is coherent, engaging, and informative for a general audience\n\nUse a professional yet friendly tone\n\nMaintain a logical structure that flows from introduction to conclusion\n\n\n** Specifics and Context **\n\nThis task is designed to create short, high-quality blog content\n\nThe goal is to capture attention while clearly delivering the intended message\n\nYour writing helps brands or individuals build thought leadership and connect with their audience\n\n\n** Examples **\nInput:\nContent: \"Remote work has grown 44% in the last five years. Benefits include flexibility and reduced commute times. Challenges include maintaining productivity and combating isolation.\"\n\nOutput:\nRemote work has become a transformative trend, with a 44% increase in adoption over the past five years. The appeal lies in its flexibility, allowing employees to tailor their schedules and eliminate time-consuming commutes. This shift has unlocked new possibilities for work-life balance and broadened the talent pool for businesses willing to embrace remote setups.\n\nHowever, remote work isn’t without its challenges. Employees often face difficulties in maintaining productivity outside a structured office environment and struggle with feelings of isolation. Addressing these concerns requires thoughtful solutions, such as virtual collaboration tools and strategies to foster connection, ensuring remote work remains both productive and fulfilling.\n\nInput:\nContent: \"The Mediterranean diet includes fruits, vegetables, whole grains, and healthy fats like olive oil. Studies show it reduces the risk of heart disease and supports brain health.\"\n\nOutput:\nThe Mediterranean diet has long been celebrated as one of the healthiest eating patterns in the world. Emphasizing fresh fruits, vegetables, whole grains, and heart-healthy fats like olive oil, this diet is as delicious as it is nutritious. Its flavorful diversity makes it easy to adopt and sustain, whether you’re enjoying a vibrant Greek salad or a wholesome bowl of minestrone.\n\nWhat sets the Mediterranean diet apart is its scientifically backed health benefits. Numerous studies highlight its ability to reduce the risk of heart disease and support cognitive health, making it a cornerstone for longevity and wellness. By prioritizing natural, unprocessed foods, this lifestyle offers a sustainable approach to eating well and living better.\n\n\n** Reminders **\n\nMaintain clarity and logical flow between paragraphs\n\nKeep the tone professional and engaging\n\nStay concise and aligned with the provided content"
+        }
+      },
+      "id": "b4183503-da1d-4406-8bc2-6b9e6dc61d84",
+      "name": "Blog Writer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1180,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $json.data.toJsonString() }}\n\nTarget Audience:\n{{ $('Set Search Fields').item.json.targetAudience }}",
+        "options": {
+          "systemMessage": "=** System Role **\n\nYou are a professional LinkedIn content specialist who turns articles into high-performing LinkedIn posts aimed at specific professional audiences.\n\n\n** Task Details **\n\nUse the article provided to create a LinkedIn post that is:\n\nClear, engaging, and optimized for mobile reading\n\nTailored to the professional goals and interests of the target audience\n\nWritten in plain text only (no formatting), with line breaks for readability\n\nIncludes 1–2 emojis to add personality\n\nOffers real, practical value and includes a call to action\n\nEnds with 3–5 relevant hashtags\n\nOutput should contain only the final post text — nothing more\n\n\n** Post Requirements **\n\nKeep the tone human and conversational\n\nStay within 3,000 characters\n\nThe post should capture the essence of the article while aligning with what matters most to the audience\n\n\n** Example **\nInput: Article on productivity hacks for managers\nOutput:\n🔥 Ready to boost your productivity?\n\nManagers — if you're drowning in meetings and feeling the pressure, here's your reminder that working smarter is possible.\n\n👉 Try these simple shifts:\n\nUse the Eisenhower Matrix to sort priorities\n\nBlock out deep work sessions on your calendar\n\nDelegate more to free up mental space\n\nWhat’s helped you stay on top of things lately?\nDrop your favorite time-saving tip in the comments 👇\n\n#Leadership #WorkSmarter #TimeManagement #Productivity #CareerGrowth\n\n\n** Key Reminders **\n\nMatch the content to the audience's pain points, language, and motivation\n\nAlways include 1–2 emojis, a strong CTA, and useful takeaways\n\nUse clean, broken-up plain text (no formatting or extra output)"
+        }
+      },
+      "id": "dc4993f5-1588-4a42-8796-79fbc299abeb",
+      "name": "LinkedIn",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        460,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $('Aggregate').item.json.data.toJsonString() }}\n\nTarget Audience:\n{{ $('Set Search Fields').item.json.targetAudience }}",
+        "options": {
+          "systemMessage": "=** System Role **\n\nYou are an expert Facebook content creator who transforms articles into concise, high-impact posts crafted for a specific audience.\n\n\n** Task Specification **\n\nUsing the provided article, create a Facebook post that is:\n\nShort, attention-grabbing, and easy to read on mobile\n\nDesigned to match the interests, needs, and goals of the target audience\n\nIncludes 1–2 emojis to add personality\n\nProvides value or insight and includes a clear call to action\n\nContains 1–3 relevant hashtags\n\nOutputs only the post content — nothing else\n\n\n** Specifics and Context **\n\nThe post should capture the core idea of the article in one engaging message\n\nIt must get attention fast, deliver value immediately, and spark interaction (likes, comments, or shares)\n\n\n** Example **\nInput: Article about productivity tips for managers\nOutput:\n🔥 Too many meetings and tasks?\nHere’s how smart managers stay ahead:\n\nPrioritize with the Eisenhower Matrix\n\nBlock time to focus\n\nDelegate more, stress less\n\nWhat’s your favorite way to stay productive? Drop it below ⬇️\n\n#Productivity #Leadership #WorkSmart\n\n\n** Reminders **\n\nKeep the tone friendly and conversational\n\nUse emojis to highlight key points, not overload the post\n\nMake sure the content is relevant and valuable to the audience\n\nOnly provide the final post text, nothing extra"
+        }
+      },
+      "id": "7537e9a1-88f8-4ab9-b2d0-55ec92c8579f",
+      "name": "Facebook",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        820,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"api_key\": \"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\",\n    \"query\": \"{{ $json.query.replace(/\"/g, '\\\\\"') }}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 3\n} ",
+        "options": {}
+      },
+      "id": "66a18ee7-6de1-448e-8b4b-174fb735028d",
+      "name": "Search Web",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -120,
+        -180
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Facebook",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Search Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Search Fields": {
+      "main": [
+        [
+          {
+            "node": "Search Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Writer": {
+      "main": [
+        [
+          {
+            "node": "Update Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook": {
+      "main": [
+        [
+          {
+            "node": "Blog Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Web": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2ff9bb19-3e31-4ac7-a1f0-bdf295b48991",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f96a7e8659163312cbaf16ad76688747ea79fa6bf8e4ec720c14444abdf2c12c"
+  },
+  "id": "DgQiY4BhiAruRjmF",
+  "tags": []
+}

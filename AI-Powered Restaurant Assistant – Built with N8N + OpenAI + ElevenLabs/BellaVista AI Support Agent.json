@@ -1,0 +1,561 @@
+{
+  "name": "BellaVista AI Support Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        224
+      ],
+      "id": "e7fe126c-6f2e-4a98-b10b-965f1abaa8d5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Wr3qu4YG5d1jm2dv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "airest",
+          "mode": "list",
+          "cachedResultName": "airest"
+        },
+        "options": {
+          "pineconeNamespace": "AI rest"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        160,
+        448
+      ],
+      "id": "d3267712-0096-422a-832c-71f2a5a8cd76",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "dQNNEsKqt7uXG8I3",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "dimensions": 1024
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        592
+      ],
+      "id": "7a9d43c6-b338-4412-b2a1-8f53d850eee7",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "Wr3qu4YG5d1jm2dv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        512
+      ],
+      "id": "ef35dde9-25d0-41b6-847a-fec0b9e5d2ad",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "Wr3qu4YG5d1jm2dv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        16
+      ],
+      "id": "a71b6d0b-3c99-4c69-85ee-728632da5964",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "name": "data",
+        "description": "Use this data to answer user questions clearly and accurately.",
+        "topK": 5
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        336,
+        336
+      ],
+      "id": "b64ba227-3c64-431b-8a66-efae603a27b3",
+      "name": "Searching Pinecone Database"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "844b3af5-6687-4efe-b332-76b2bad268d9",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c7b5397c-21f4-47ee-a0dd-8643d50fa288",
+      "name": "Webhook",
+      "webhookId": "844b3af5-6687-4efe-b332-76b2bad268d9"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        304
+      ],
+      "id": "a54cf95c-4c41-42d9-883a-a9e5d9695a77",
+      "name": "Human Support",
+      "webhookId": "ab1f47b0-87c3-44bc-967f-03dcaec08371",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QbvLdLYsQivVIwK9",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=user question :{{ $json.body.question }}\nuser Email :{{ $json.body.Email }}",
+        "options": {
+          "systemMessage": "=*Role*\n\nYour name is Rachel, a customer support agent for an Italian restaruant called Bella Vista.\n\nYou are responsible for providing information about the restaurant using the knowledge base system.\n\nPlese ensure your communication style is friendly and to the point.\n\n**Tools**\n\nWhen a customer want to make a booking follow these steps.\n\nCollect essentials details: customer name, email address, party size, preferred date and time  and any special requests the may have.\nYou will use human support adn make booking tool because it is important, you will not send email for getting a valid email\nHuman Support :\n   You will use this tool to send email about booking in a good form.\nMake booking :\n    Use this tool to book calender for user\n\nLet the customer know their booking request has been submitted to the restaurant and they will receive a confirmation shortly.\n\n\nWhen a customer wants to speak with a real person.\n\nGet their name, email or phone number.\n\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        368,
+        0
+      ],
+      "id": "926fb4b5-4958-4cac-bf6f-5331db2f642f",
+      "name": "AI Support Agent"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "humayunkhan7896@gmail.com",
+          "mode": "list",
+          "cachedResultName": "humayunkhan7896@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        320
+      ],
+      "id": "7c3c2dd5-6b22-4b6d-a565-ee5340c1145b",
+      "name": "Make Booking",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "gL0nqtql8IKDkSmR",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        352
+      ],
+      "id": "0ff08c58-e86c-4a61-82eb-422d5fceaf43",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        368
+      ],
+      "id": "c0f2b42a-ccf7-4bfc-819b-ef07e834ad46",
+      "name": "Embeddings OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "Wr3qu4YG5d1jm2dv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1328,
+        16
+      ],
+      "id": "8761c494-3f87-444c-8593-0685f681f997",
+      "name": "Google Drive Download File1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "wvxQjdxuXrMhYcp8",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "limit": 20,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1HRoCi_3qLJPImB0tOA9L2SpIWF0joTOL",
+            "mode": "list",
+            "cachedResultName": "Solar Panels Installer Agent n8n eleven labs",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1HRoCi_3qLJPImB0tOA9L2SpIWF0joTOL"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1520,
+        16
+      ],
+      "id": "78dd7651-cd34-4808-921c-fdcc3dff2c54",
+      "name": "Google Drive Search Folder1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "wvxQjdxuXrMhYcp8",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "solarpanels",
+          "mode": "list",
+          "cachedResultName": "solarpanels"
+        },
+        "options": {
+          "pineconeNamespace": "energyconcerns"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        48
+      ],
+      "id": "16fd360e-36f4-41d9-af82-34ed907b6c96",
+      "name": "Pinecone Database1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "dQNNEsKqt7uXG8I3",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        576
+      ],
+      "id": "a8ae32fc-0bea-405c-ba75-c1edbadb8e41",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1088,
+        16
+      ],
+      "id": "b7ec3d5c-bc43-47ae-8532-12fbbdc24b95",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1696,
+        16
+      ],
+      "id": "04397f19-ee4b-4593-af8c-0caa4d96de94",
+      "name": "When clicking ‘Test workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Searching Pinecone Database",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Searching Pinecone Database",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Searching Pinecone Database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Support": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Support Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Booking": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Support Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Database1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Database1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Download File1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Search Folder1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Download File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Database1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Pinecone Database1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Search Folder1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a62ecadd-128e-4f06-aee1-254bf0263b9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b5d1b42770c2bf9590ab16c14ee67408fbe6e6ddd8ffd0a1191753de87644a74"
+  },
+  "id": "tXFnvvygZev2KLjO",
+  "tags": []
+}

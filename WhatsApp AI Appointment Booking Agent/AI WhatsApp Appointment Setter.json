@@ -1,0 +1,847 @@
+{
+  "name": "AI WhatsApp Appointment Setter",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        624
+      ],
+      "id": "7111d828-7916-41e0-9e8d-34fbf4875945",
+      "name": "WhatsApp Trigger",
+      "webhookId": "bd34725e-4925-4d41-a0aa-842556526836"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2272,
+        624
+      ],
+      "id": "689c7ce4-5ad2-4110-96eb-dc2370554769",
+      "name": "Send message",
+      "webhookId": "251f4d4b-0954-4a07-8e44-65c9ca470c35"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are a helpful AI assistant.\n\n#You have access to these tools:\n\nA Google Calendar tool that allows you to create, reschedule, and delete events in the calendar.\n\nSeveral Google Sheet tools:\n\n\"Google Sheet Add Row\": allows you to add new rows to a Google Sheet\n\n\"Google Sheet Update Row\": allows you to update rows in a Google Sheet\n\n\"Google Sheet Read\": allows you to read content of the Google Sheet\n\nGmail Send Confirmation User: allows you to send a confirmation email to the user after the booking is confirmed.\n\nThe current time and date is the following Pakistan Time Zone: {{ $now }}.\n\n#Your Task:\n\nStart by asking the user:\n\n\"Would you like to book an appointment?\"\n\nIf the user responds with yes, begin collecting their contact information.\n\nYou must always collect the contact information in the following strict order:\n\nFirst: Email address\n\n→ This will be used as the unique identifier to match the row in the Google Sheet.\n\nAfter receiving the email address, immediately check if a row with this email already exists using \"Google Sheet - Read\".\n\nIf found, use \"Google Sheet Update Row\" to update the existing row\n\nIf not found, use \"Google Sheet Add Row\" to create a new one with the email.\n\nThen: Full name\n\nThen: Phone number\n\nThen: Location or time zone\n\n! Only ask for one piece of information at a time.\n! Wait for the user's reply before asking the next question.\n\nAfter every response, immediately update the Google Sheet using \"Google Sheet Update Row\", matched by the email address.\n\nYou must always store all user information (email address, name, phone number, and location/time zone) in the Google Sheet.\n\n2.5) After collecting the location/time zone, ask the user:\n\n\"what would you like to discuss during your appointment?\"\n\nWait for the user's response.\n\nThen immediately update the same row in the Google Sheet using \"Google Sheet Update Row\", matched by the email address.\n\nSave the user's response as the appointment topic or notes.\n\nOnce the user's contact information and discussion topic have been collected, you must offer 5 available time slots for booking.\n\nUse the assistant's local time zone (Pakistan time) to determine availability.\n\nThe available office hours are:\n\nMonday to Friday\n\nMorning block: 09:00-12:00\n\nAfternoon block: 13:00-17:00\n\n(Never offer times between 12:00 and 13:00)\n\nDo not offer any time slots that fall outside of these hours in Pakistan time, even if they appear to be valid in the user's local time zone.\n\nWhen a user requests a time range (e.g., \"afternoon\"), follow this logic:\n\nUnderstand the time range based on the user's time zone.\n\nConvert that time range into Pakistan time.\n\nOnly offer time slots that match both the user's intent and fall within the Pakistan office hours.\n\nYou must check that a full 60-minute block is available:\n\nThe start and end time must not conflict with any existing calendar event.\n\nThe time slot must begin at least 24 hours in the future.\n\nAlways offer the next 5 available 60-minute time slots that meet the above criteria.\n\nOnly display the time slots in the user's time zone.\n\n→ Do not mention Pakistan time anywhere in your response.\n→ Do not include time conversions in parentheses.\n\nPresent the time slots in a simple, friendly format like:\n\n\"Here are the next available time slots in your local time zone:\n\nThursday at 10:00 AM\nFriday at 11:30 AM\"\n\nIf no valid slots match the user's requested period (e.g., afternoon), politely inform the user and offer the next closest options.\n\nNever mention unavailable or already booked time slots.\nOnly show the free ones.\nDo not include notes, reminders, or explanations about other bookings.\n\nYou must not manually calculate or estimate time zone offsets.\n\n→ Use the Google Calendar tool to convert and format times.\n→ Always respect daylight saving time (DST) in both the user's and assistant's time zone.\n\nWhen the user confirms a preferred date and time, you must:\n\nCreate an event in the Google Calendar at the selected time.\n\nAppointments should always be scheduled for 60 minutes unless the user specifies otherwise.\n\nDo not create a new row in the Google Sheet.\n\nInstead, use the tool \"Google Sheet Update Row\" to update the existing row corresponding to the user (matched by email address) and add the selected date and time as the confirmed appointment.\n\nThe appointment time saved in the Google Sheet must always be in the assistant's local time (Pakistan time), never in the user's time zone.\n\nAfter the booking is confirmed, send a confirmation email to the user using the \"Gmail Send Confirmation User\" tool.\n\nThe email must include:\n\nThe confirmed appointment date and time (in the user's local time zone)\n\nThe user's name and topic of discussion\n\nA short, friendly message confirming the booking\n\nOnly send the confirmation email after the calendar event has been created and all data has been stored in the Google Sheet."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1488,
+        624
+      ],
+      "id": "06c3eb18-31b7-4a26-abba-208c0af36225",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        848
+      ],
+      "id": "b1315c30-47b7-4dad-abef-b2cfa0f48019",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.messages[0].from }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        848
+      ],
+      "id": "6bd672ef-f878-4363-a36c-7a664236ee54",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "your-calendar@gmail.com",
+          "mode": "list",
+          "cachedResultName": "your-calendar@gmail.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1296,
+        848
+      ],
+      "id": "1d9ff638-fcae-430e-bef8-c733987d7a3e",
+      "name": "Calendar read"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "your-calendar@gmail.com",
+          "mode": "list",
+          "cachedResultName": "your-calendar@gmail.com"
+        },
+        "start": "={{ $fromAI('Start', `date and time for when the event should start`, 'string') }}",
+        "end": "={{ $fromAI(\"end\", \"date and time for when the event should end\") }}",
+        "additionalFields": {
+          "summary": "={{ $fromAI(\"title\", \"title of the event\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        848
+      ],
+      "id": "6248009b-f5a3-4a45-9798-60432788ec30",
+      "name": "Calendar  create"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "your-calendar@gmail.com",
+          "mode": "list",
+          "cachedResultName": "your-calendar@gmail.com"
+        },
+        "eventId": "={{ $fromAI(\"id\", \"the id of the event\") }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1552,
+        848
+      ],
+      "id": "6079e6fa-cc3a-4b45-8ce7-1f5653866240",
+      "name": "Calendar  delete"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "ai agent appointment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1680,
+        848
+      ],
+      "id": "f81820a7-8559-4b3a-8af7-5a39b88022f3",
+      "name": "Get row(s) in sheet in Google Sheets"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "ai agent appointment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Appointment Date",
+              "displayName": "Appointment Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1808,
+        848
+      ],
+      "id": "9c37fa9e-94b1-4a1d-b9f5-e6096f4d155c",
+      "name": "Google Sheets add rows"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 1.2,
+      "position": [
+        1936,
+        848
+      ],
+      "id": "c277d5df-138f-4b0d-bac4-f49b7aeefe78",
+      "name": "Send a message in Gmail",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "ai agent appointment",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": true,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Appointment Date",
+              "displayName": "Appointment Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        2064,
+        848
+      ],
+      "id": "58816dd3-cfb0-4f3e-9c30-9aa07edfeb78",
+      "name": "Google Sheets update rows"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f7c82a21-c8fb-4bb1-acc1-51dff9e32cd9",
+              "name": "messages",
+              "value": "={{ $json.messages }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1264,
+        624
+      ],
+      "id": "ec26ae8d-2f10-4827-8c81-82e36a452be4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.messages[0].audio.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        624,
+        416
+      ],
+      "id": "097c737a-2e72-4dcc-b027-13e5e08bcb5d",
+      "name": "Download media"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.messages[0].type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        272,
+        624
+      ],
+      "id": "01e405b4-4846-46e5-87ce-c68c0b99340d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/audio/transcriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-1"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        912,
+        416
+      ],
+      "id": "50813123-62e6-4e76-bbdd-25deb0b6b8b2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        928,
+        192
+      ],
+      "id": "55716025-9f9a-4f6b-8469-9869034fdc6f",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        176,
+        192
+      ],
+      "id": "2b3b96fd-d64a-454d-aeaa-34520bef9bc4",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a voice transcription formatter. Your task is to:\n\n1. Correct any spelling, grammar, or punctuation errors in the transcription\n2. Format the text properly with appropriate capitalization and punctuation\n3. Remove filler words like \"um\", \"uh\", \"like\" when excessive\n4. Maintain the original meaning and intent\n5. Keep it concise and clear\n\nReturn ONLY the cleaned transcription text, nothing else."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1200,
+        416
+      ],
+      "id": "6e27e064-3a99-4a8b-80dc-c3a2b77dcf5c",
+      "name": "Transcribe a recording"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "70b29cb6-a01f-4e16-98f0-8d5c764af3d6",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        288
+      ],
+      "id": "f97e3bf4-e59a-4edb-aedc-8db1842cc63d",
+      "name": "Webhook",
+      "webhookId": "70b29cb6-a01f-4e16-98f0-8d5c764af3d6"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "={{ $json.user_message }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        288
+      ],
+      "id": "4e1fa1e5-4a61-4a27-9f3c-2099c1e411a7",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $json.phone_id }}",
+        "recipientPhoneNumber": "={{ $json.phone_number }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        288
+      ],
+      "id": "80641f14-1a11-4706-943b-dfd08ff89638",
+      "name": "Send message1",
+      "webhookId": "251f4d4b-0954-4a07-8e44-65c9ca470c35"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar read": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar  create": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar  delete": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets add rows": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets update rows": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e48a1886-4cac-4fcb-b329-a04e763536a0",
+  "meta": {
+    "instanceId": "906087f92c274754ed667f19aa12765185db71d0b5be4c5fb2fe90d44fed3046"
+  },
+  "nodeGroups": [],
+  "id": "9EzQWtApxnPRFaf5",
+  "tags": []
+}

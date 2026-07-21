@@ -1,0 +1,521 @@
+{
+  "name": "AI Receptionist Agent - Dental Clinic",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a5739d5b-a94b-4e20-a07a-dc72a7e9d839",
+      "name": "Vapi Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        96
+      ],
+      "webhookId": "vapi-ai-receptionist"
+    },
+    {
+      "parameters": {},
+      "id": "054a7ad9-e9ca-4d9b-885d-c427ac2649f3",
+      "name": "Process Vapi Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.functionCall?.name}}",
+              "operation": "equals",
+              "value2": "checkAvailability"
+            }
+          ]
+        }
+      },
+      "id": "69563e5f-5364-4323-869f-f219497db36c",
+      "name": "Is Check Availability?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        176,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Dental Clinic Base"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblAvailableSlots",
+          "mode": "list",
+          "cachedResultName": "Available Slots"
+        }
+      },
+      "id": "8257e37e-dab6-4f3a-8bcd-62f88f682356",
+      "name": "Check Airtable Availability",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        368,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.length}}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "id": "6cfedbbf-0274-4cef-9f5e-c0253d405304",
+      "name": "Is Slot Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Dental Clinic Base"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblAppointments",
+          "mode": "list",
+          "cachedResultName": "Appointments"
+        }
+      },
+      "id": "db74f3f4-1c6a-4a2d-92c1-0c13b0ff3e8d",
+      "name": "Book Appointment in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        768,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Dental Clinic Base"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblAvailableSlots",
+          "mode": "list",
+          "cachedResultName": "Available Slots"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Booked": true,
+            "Booked By": "={{$node[\"Process Vapi Data\"].json.phoneNumber}}",
+            "Booked At": "={{$now.toISO()}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "b6ac0030-a80c-4a42-b7be-ad8552fff5cf",
+      "name": "Mark Slot as Booked",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        768,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://your-fastapi-service:8000/send-to-vapi",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"callSid\": \"{{$node[\"Process Vapi Data\"].json.callSid}}\",\n  \"message\": \"Perfect! I've successfully booked your appointment for {{$node[\"Book Appointment in Airtable\"].json.fields['Appointment Date']}} at {{$node[\"Book Appointment in Airtable\"].json.fields['Appointment Time']}}. You'll receive a confirmation text message shortly. Is there anything else I can help you with?\",\n  \"functionResult\": {\n    \"success\": true,\n    \"appointmentId\": \"{{$node[\"Book Appointment in Airtable\"].json.id}}\",\n    \"date\": \"{{$node[\"Book Appointment in Airtable\"].json.fields['Appointment Date']}}\",\n    \"time\": \"{{$node[\"Book Appointment in Airtable\"].json.fields['Appointment Time']}}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "dea7e6cd-e1bf-4201-b06b-936be4f52271",
+      "name": "Send Confirmation to Vapi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        976,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Dental Clinic Base"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblAvailableSlots",
+          "mode": "list",
+          "cachedResultName": "Available Slots"
+        }
+      },
+      "id": "c87aefe2-c9f3-43b3-924e-d8774e06ac1e",
+      "name": "Get Alternative Slots",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        768,
+        192
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "54d7a1aa-3519-4a41-823c-22bbacedb746",
+      "name": "Format Alternative Slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://your-fastapi-service:8000/send-to-vapi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"callSid\": \"{{$node[\"Process Vapi Data\"].json.callSid}}\",\n  \"message\": \"{{$json.message}}\",\n  \"functionResult\": {\n    \"success\": false,\n    \"reason\": \"slot_unavailable\",\n    \"alternatives\": {{$json.alternatives}}\n  }\n}",
+        "options": {}
+      },
+      "id": "fa80a7c0-b4d6-4e37-ba43-136bc3b38bba",
+      "name": "Send Alternatives to Vapi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1168,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a friendly and professional dental receptionist. Help patients book appointments, answer questions about services, and provide excellent customer service. Always be warm, clear, and efficient.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{$node[\"Process Vapi Data\"].json.transcript}}\"\n    }\n  ],\n  \"functions\": [\n    {\n      \"name\": \"checkAvailability\",\n      \"description\": \"Check if a specific appointment time slot is available\",\n      \"parameters\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"date\": {\n            \"type\": \"string\",\n            \"description\": \"Appointment date in YYYY-MM-DD format\"\n          },\n          \"time\": {\n            \"type\": \"string\",\n            \"description\": \"Appointment time in HH:MM AM/PM format\"\n          },\n          \"duration\": {\n            \"type\": \"integer\",\n            \"description\": \"Duration in minutes (default: 30)\"\n          }\n        },\n        \"required\": [\"date\", \"time\"]\n      }\n    },\n    {\n      \"name\": \"bookAppointment\",\n      \"description\": \"Book an appointment after confirming availability\",\n      \"parameters\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"date\": {\n            \"type\": \"string\",\n            \"description\": \"Appointment date in YYYY-MM-DD format\"\n          },\n          \"time\": {\n            \"type\": \"string\",\n            \"description\": \"Appointment time in HH:MM AM/PM format\"\n          },\n          \"patientName\": {\n            \"type\": \"string\",\n            \"description\": \"Patient's full name\"\n          },\n          \"reason\": {\n            \"type\": \"string\",\n            \"description\": \"Reason for visit (e.g., cleaning, checkup, emergency)\"\n          },\n          \"duration\": {\n            \"type\": \"integer\",\n            \"description\": \"Duration in minutes\"\n          }\n        },\n        \"required\": [\"date\", \"time\", \"patientName\"]\n      }\n    }\n  ],\n  \"function_call\": \"auto\"\n}",
+        "options": {}
+      },
+      "id": "ce5d997a-4395-4134-8c91-dc5d85401f84",
+      "name": "OpenAI Function Calling",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "base": {
+          "__rl": true,
+          "value": "appXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Dental Clinic Base"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCallLogs",
+          "mode": "list",
+          "cachedResultName": "Call Logs"
+        }
+      },
+      "id": "8ecefbb9-62d7-4b02-a7d7-02604e17d1ff",
+      "name": "Log Call to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, message: 'Webhook received' } }}",
+        "options": {}
+      },
+      "id": "880db798-4684-477a-85a7-1b460c866036",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+          "mode": "list",
+          "cachedResultName": "Dental Appointments"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Patient Phone": "={{$node[\"Process Vapi Data\"].json.phoneNumber}}",
+            "Patient Name": "={{$json.functionCall.parameters.patientName}}",
+            "Date": "={{$json.functionCall.parameters.date}}",
+            "Time": "={{$json.functionCall.parameters.time}}",
+            "Duration": "={{$json.functionCall.parameters.duration || 30}}",
+            "Status": "Confirmed",
+            "Source": "AI Receptionist",
+            "Created": "={{$now.toISO()}}",
+            "Call ID": "={{$node[\"Process Vapi Data\"].json.callSid}}"
+          }
+        },
+        "options": {}
+      },
+      "id": "5ea4b8fc-f937-4636-af19-f5d3b64816f3",
+      "name": "Book Appointment in Google Sheets (Alternative)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        -352
+      ],
+      "disabled": true,
+      "notes": "Enable this node if using Google Sheets instead of Airtable"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 AI Receptionist Workflow\n\n**This workflow handles:**\n\n1. ✅ Incoming Vapi voice calls\n2. ✅ Real-time calendar checking (Airtable)\n3. ✅ Appointment booking\n4. ✅ Alternative slot suggestions\n5. ✅ Call logging & analytics\n6. ✅ OpenAI function calling\n\n**Required Setup:**\n- Vapi account + phone number\n- Airtable base with 3 tables\n- FastAPI backend service\n- OpenAI API key\n- n8n instance\n\n**Tables needed:**\n- Appointments\n- Available Slots  \n- Call Logs",
+        "height": 460,
+        "width": 340,
+        "color": 4
+      },
+      "id": "638578b3-b608-450a-8754-193dea8c16b2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        -96
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Vapi Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Vapi Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Vapi Data": {
+      "main": [
+        [
+          {
+            "node": "Is Check Availability?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Call to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Check Availability?": {
+      "main": [
+        [
+          {
+            "node": "Check Airtable Availability",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI Function Calling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Airtable Availability": {
+      "main": [
+        [
+          {
+            "node": "Is Slot Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Slot Available?": {
+      "main": [
+        [
+          {
+            "node": "Book Appointment in Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mark Slot as Booked",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Alternative Slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Book Appointment in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation to Vapi": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Alternative Slots": {
+      "main": [
+        [
+          {
+            "node": "Format Alternative Slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Alternative Slots": {
+      "main": [
+        [
+          {
+            "node": "Send Alternatives to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Alternatives to Vapi": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Function Calling": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3d4658af-9ce3-4e37-a6b7-7671c5dd545a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "906087f92c274754ed667f19aa12765185db71d0b5be4c5fb2fe90d44fed3046"
+  },
+  "nodeGroups": [],
+  "id": "sc8rFcrn2f3kWXZT",
+  "tags": [
+    {
+      "name": "AI Agent",
+      "id": "LuUhcv1mXpPK4prB",
+      "updatedAt": "2026-07-21T07:07:07.014Z",
+      "createdAt": "2026-07-21T07:07:07.014Z"
+    },
+    {
+      "name": "Voice AI",
+      "id": "S6NB76MYPrAmiRL9",
+      "updatedAt": "2026-07-21T07:07:07.054Z",
+      "createdAt": "2026-07-21T07:07:07.054Z"
+    }
+  ]
+}

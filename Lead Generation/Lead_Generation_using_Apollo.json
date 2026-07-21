@@ -1,0 +1,647 @@
+{
+  "name": "Lead Generation using Apollo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0bda40fc-2acd-440d-8a01-9cae0095d6f0",
+      "name": "When clicking ‘Test workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2440,
+        3680
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/{{ $json.data.defaultDatasetId }}/items?format=json",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer < Insert your API key>"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fc38ed0b-c475-40f9-8e95-26c5edbc3b5c",
+      "name": "Get Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2040,
+        3680
+      ],
+      "notes": "https://api.apify.com/v2/datasets/{{ $json.data.defaultDatasetId }}/items?format=json"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9025a457-110c-481c-930e-2dedabe17c98",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3b3b756f-6fb5-4b0e-8e90-0ca3c64febab",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "b120361c-c05f-4d09-b0df-9b5bbd03ebeb",
+              "name": "linkedin_url",
+              "value": "={{ $json.linkedin_url }}",
+              "type": "string"
+            },
+            {
+              "id": "056f55a3-48b7-4681-8720-261f1e10d92c",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "1d685ca7-c35b-4242-a102-b260e36029d3",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "c37c66e5-7750-4b13-ba3e-a9c113f7a4f3",
+              "name": "organization.name",
+              "value": "={{ $json.organization.name }}",
+              "type": "string"
+            },
+            {
+              "id": "995fd583-ac0d-4705-bab7-134bf2d35b1f",
+              "name": "organization.website_url",
+              "value": "={{ $json.organization.website_url }}",
+              "type": "string"
+            },
+            {
+              "id": "106536d9-c8aa-4c6f-a14f-489589035cc8",
+              "name": "employment_history[0].start_date",
+              "value": "={{ $json.employment_history[0].start_date }}",
+              "type": "string"
+            },
+            {
+              "id": "9d29a41f-378b-48d2-9e6f-7e97ef724137",
+              "name": "Location",
+              "value": "={{ $json.organization.city }}, {{ $json.organization.state }}, {{ $json.organization.country }}",
+              "type": "string"
+            },
+            {
+              "id": "fda6309b-5db4-4ec4-b25f-343f450b416a",
+              "name": "organization.linkedin_url",
+              "value": "={{ $json.organization.linkedin_url }}",
+              "type": "string"
+            },
+            {
+              "id": "d144238a-c768-42bd-9f05-c2630b52317a",
+              "name": "organization.industry",
+              "value": "={{ $json.organization.industry }}",
+              "type": "string"
+            },
+            {
+              "id": "bf2ed2ab-1fef-4740-b93b-e20c5b171f9a",
+              "name": "organization.crunchbase_url",
+              "value": "={{ $json.organization.crunchbase_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c9ffd5f7-e7d1-40f5-bfee-7dc4d45ae05e",
+      "name": "Filter Needed Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1840,
+        3680
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.email }}",
+        "options": {
+          "historySize": 10000
+        }
+      },
+      "id": "fc6f6a53-2d72-4d8c-b8db-dd7a58ea5d80",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -1640,
+        3680
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appLOUdMhBkjYyVVN",
+          "mode": "list",
+          "cachedResultName": "Apollo Scraper",
+          "cachedResultUrl": "https://airtable.com/appLOUdMhBkjYyVVN"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblrzXds8DlEwgYmO",
+          "mode": "list",
+          "cachedResultName": "Lead",
+          "cachedResultUrl": "https://airtable.com/appLOUdMhBkjYyVVN/tblrzXds8DlEwgYmO"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company Website": "={{ $json.organization.website_url }}",
+            "Company Name": "={{ $json.organization.name }}",
+            "Email Address": "={{ $json.email }}",
+            "Time At Company": "={{ $json.employment_history[0].start_date }}",
+            "Title": "={{ $json.title }}",
+            "LinkedIn URL": "={{ $json.linkedin_url }}",
+            "Full Name": "={{ $json.name }}",
+            "First Name": "={{ $json.first_name }}",
+            "LinkedIn Organization URL": "={{ $json.organization.linkedin_url }}",
+            "Crunchbase URL": "={{ $json.organization.crunchbase_url }}",
+            "Lead Status": "Lead Yet to be Enriched",
+            "Start Lead Enrichment": false,
+            "Industry": "={{ $json.organization.industry }}",
+            "Location": "={{ $json.Location }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Start Lead Enrichment",
+              "displayName": "Start Lead Enrichment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Lead Yet to be Enriched",
+                  "value": "Lead Yet to be Enriched"
+                },
+                {
+                  "name": "Cold",
+                  "value": "Cold"
+                },
+                {
+                  "name": "Interested - RtS",
+                  "value": "Interested - RtS"
+                },
+                {
+                  "name": "Interested - MiN",
+                  "value": "Interested - MiN"
+                },
+                {
+                  "name": "Interested - CN",
+                  "value": "Interested - CN"
+                },
+                {
+                  "name": "Interested - FUL",
+                  "value": "Interested - FUL"
+                },
+                {
+                  "name": "Wrong Person - R",
+                  "value": "Wrong Person - R"
+                },
+                {
+                  "name": "Not Interested - NI",
+                  "value": "Not Interested - NI"
+                },
+                {
+                  "name": "Not Interested - NB",
+                  "value": "Not Interested - NB"
+                },
+                {
+                  "name": "Not Interested - AUS",
+                  "value": "Not Interested - AUS"
+                },
+                {
+                  "name": "Meeting Booked",
+                  "value": "Meeting Booked"
+                },
+                {
+                  "name": "No Show",
+                  "value": "No Show"
+                },
+                {
+                  "name": "Awaiting Proposal",
+                  "value": "Awaiting Proposal"
+                },
+                {
+                  "name": "Proposal Sent",
+                  "value": "Proposal Sent"
+                },
+                {
+                  "name": "Closed",
+                  "value": "Closed"
+                },
+                {
+                  "name": "Lost - U/DNC",
+                  "value": "Lost - U/DNC"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Time At Company",
+              "displayName": "Time At Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Clean Company Name",
+              "displayName": "Clean Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn Organization URL",
+              "displayName": "LinkedIn Organization URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Crunchbase URL",
+              "displayName": "Crunchbase URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Website",
+              "displayName": "Company Website",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting Date",
+              "displayName": "Meeting Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Google Meet URL",
+              "displayName": "Google Meet URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn Personal",
+              "displayName": "LinkedIn Personal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn Company",
+              "displayName": "LinkedIn Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Website Scrape",
+              "displayName": "Company Website Scrape",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Posts",
+              "displayName": "Posts",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Personalization",
+              "displayName": "Personalization",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Instantly Camp. ID",
+              "displayName": "Instantly Camp. ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "e23da364-b591-4aa3-a519-a46a0e547819",
+      "name": "Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -1440,
+        3680
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "sqO5ueXPaoMEQImm",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Scrape up to 1,000 items daily (25 per page = 40 pages).\nUse Airtable to track the last page scraped and start from the next one each day.\nOptionally, use JSON/code to automatically pull the start page from Airtable for seamless automation.",
+        "height": 94,
+        "width": 560,
+        "color": 4
+      },
+      "id": "224148d9-7b52-4ca9-897a-b184d7372141",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2500,
+        3540
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/3de5DRuKU05FLhk22/runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=< Insert your API key>"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"cookie\": [\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737731346,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__utm_gspartnerkey\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rakeshkumar8325\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1763493536,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_cioid\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"673b929f990ce102d1f628e8\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1765826016,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"__qca\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"P0-1696208028-1731957216703\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1740323344.642829,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_gsxidUhXtEvJiYLs3\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"BXj19arMfwegrZ\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1736684705,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"intercom-session-dyws6i9m\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"TlJIQ0h5YmVkTGZiSWsxMS9PRWFJbG9TTE12S1pwdTU1K1N1dUJvRGZIQ1A5c0xrTXExQVBoTytMVEtweVBiQS0tRTJ4cC9xMlJ0dUsxb2tDYkZaYjJJZz09--63b8dcf4aee1b9034ceeb702042bfdf84857c71f\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1766517135,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"mutiny.user.token\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"b8e1dcec-6ac8-4674-bfde-258343b05fab\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1763493410,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_cioanonid\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"bbd01062-a33a-b1a6-bf85-234a14ee3ce8\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1740323344.642786,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_ps_partner_key_UhXtEvJi\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rakeshkumar8325\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__utm_term\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"apollo%20io%20pricing\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1740323344.642853,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_grsmpkUhXtEvJi\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rakeshkumar8325\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"ps_xid\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"BXj19arMfwegrZ\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1736081718,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_hjSession_3601622\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"eyJpZCI6ImFjY2EwMjA1LTQ3OTYtNDBmMi1hMWFiLTMxMGVhZTA1MzI0MCIsImMiOjE3MzYwNzQ3ODEyMjEsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MH0=\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_tt_enable_cookie\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"1\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1751626888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"__hstc\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"21978340.dc3dfc9cc265933cd32e2c3ef8936675.1731957216690.1734346072022.1736074781283.19\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1770634888.7063,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_ga\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"GA1.1.1074487864.1731957137\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"ps_partner_key\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rakeshkumar8325\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1770634888.705773,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_ga_76XXTC73SP\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"GS1.1.1736074780.21.1.1736074888.60.0.1808026436\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__gclid\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"CjwKCAiA-Oi7BhA1EiwA2rIu22SgtWkuePRHNC5AC0xsQIG9lNMgkVxv4BAq3m_EETkFFXlt6CFQERoCnYcQAvD_BwE\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"pscd\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"get.apollo.io\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"expirationDate\": 1762354785.629173,\n            \"hostOnly\": true,\n            \"httpOnly\": true,\n            \"name\": \"dwndvc\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"28a38806fb9ebfa1178f144426a71678c39528b612c44790d332dbd4631791ed\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"expirationDate\": 1736080485.907785,\n            \"hostOnly\": true,\n            \"httpOnly\": true,\n            \"name\": \"GCLB\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"CJ2ay-CO7J75HRAD\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1739733216,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_gcl_au\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"1.1.1749721554.1731957216.391874009.1733297903.1733297903\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"ZP_LATEST_LOGIN_PRICING_VARIANT\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"24Q3_UC_AA59\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_gcl_gs\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"2.1.k1$i1736074887$u81667783\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"ZP_Pricing_Split_Test_Variant\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"24Q3_UC_AA59\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1736081685.907832,\n            \"hostOnly\": false,\n            \"httpOnly\": true,\n            \"name\": \"__cf_bm\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"I5sK4wWvnLCRV.XSMJdda7_hfCAM5s3xxpdOdjBPEok-1736079885-1.0.1.1-._kJ7ZySkvDdGa4GDRiZth29jn4U4GACCQFpaZZepiSPnM6BRDxTR2GKpQ.iALRAHZ3BIoUnOGe7Ag.E8i34Pw\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"expirationDate\": 1736080856,\n            \"hostOnly\": true,\n            \"httpOnly\": false,\n            \"name\": \"_dd_s\",\n            \"path\": \"/\",\n            \"sameSite\": \"strict\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rum=0&expire=1736080803631\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__utm_source\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"google\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"hostOnly\": true,\n            \"httpOnly\": true,\n            \"name\": \"dwnapijrn\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"3b091b1849a48292660ccb3b636dc2958508e923836c1be69c6c51d195333918\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1770639906.492432,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"amplitude_id_122a93c7d9753d2fe678deffe8fac4cfapollo.io\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"eyJkZXZpY2VJZCI6IjdmMzUwNjYzLTBmNjQtNDBiZC1hMDBlLTZkMDZhYmNmNjRhYlIiLCJ1c2VySWQiOiI2NzNiOTI5Zjk5MGNlMTAyZDFmNjI4ZTgiLCJvcHRPdXQiOmZhbHNlLCJzZXNzaW9uSWQiOjE3MzYwNzk5MDM3MDMsImxhc3RFdmVudFRpbWUiOjE3MzYwNzk5MDY0OTIsImV2ZW50SWQiOjQzNywiaWRlbnRpZnlJZCI6MTI0LCJzZXF1ZW5jZU51bWJlciI6NTYxfQ==\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"__hssrc\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"1\"\n        },\n        {\n            \"domain\": \".app.apollo.io\",\n            \"expirationDate\": 1764240484,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"__stripe_mid\",\n            \"path\": \"/\",\n            \"sameSite\": \"strict\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"6718bdce-fde9-4d5b-a9b4-c9dd54fc00540504f0\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850889,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_gcl_aw\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"GCL.1736074889.CjwKCAiA-Oi7BhA1EiwA2rIu22SgtWkuePRHNC5AC0xsQIG9lNMgkVxv4BAq3m_EETkFFXlt6CFQERoCnYcQAvD_BwE\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1767610888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_hjSessionUser_3601622\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"eyJpZCI6Ijk4NmUwZjJlLTBiMjAtNWI0MS05YjRhLTFmOTk2YTA0ZGYyYiIsImNyZWF0ZWQiOjE3MzIxOTg3Mzc5NzYsImV4aXN0aW5nIjp0cnVlfQ==\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"hostOnly\": true,\n            \"httpOnly\": true,\n            \"name\": \"_leadgenie_session\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"R%2BE3qQnHUYebvMPLl4tq4%2BOH7pj9PcqMnn43%2FVXkc69sumLYNCasGkuCO%2BSKjWTps1vebHeHzMvCNLW0LCGxHPhXC5eOsGqLGieiE%2B0AqSkdbKUQWqg8Q1SNgsTvcFDi60oxE5F20AqYRyzx5MwPhUr2tRp5vtIgaaNZKCc%2BJyf0rLidc%2BBXA94%2BfdSICwThJyTBGrZZJ2hhpr%2BigRJDjh%2FRibZJC3b8PuyZ5E1sZhvXKft4a48eUpIXlb%2Fjmg2Z3bQVv%2FAJ2%2F57O3bQfIZ4dhHEjq0objiqZ4s%3D--W%2BaUUkJl3mgcJH%2Fb--7tj%2BGxQnMmSM%2BHA4bVWBbw%3D%3D\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1740323344.64272,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_ps_xid_UhXtEvJi_KNuM\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"BXj19arMfwegrZ\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"_ttp\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"99yY7ahxoADoExEIHxkLY7Ur8Dw.tt.1\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1763493217,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"blueID\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"ff2ef00e-9298-4005-8672-eb862047a408\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1738666888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"blueULC\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"google\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"hostOnly\": true,\n            \"httpOnly\": true,\n            \"name\": \"dwnapidvc\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"8cff51505407c3b2972fec88985436ee1537b35071dc1a77b1add709f60ca3fe\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"hostOnly\": true,\n            \"httpOnly\": true,\n            \"name\": \"dwnjrn\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"eba9fb6274dd5840fc3b6c88e30ef0d8faa9f1efb9c497434815adad95d043e0\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"growSumoPartnerKey\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rakeshkumar8325\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1743850888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"gsxid\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"BXj19arMfwegrZ\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1751626888,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"hubspotutk\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"dc3dfc9cc265933cd32e2c3ef8936675\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1759409905,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"intercom-device-id-dyws6i9m\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"a8c42913-da2c-4e01-9834-3999089a4c2b\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1738753194.485293,\n            \"hostOnly\": false,\n            \"httpOnly\": true,\n            \"name\": \"remember_token_leadgenie_v2\",\n            \"path\": \"/\",\n            \"sameSite\": \"no_restriction\",\n            \"secure\": true,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"eyJfcmFpbHMiOnsibWVzc2FnZSI6IklqWTNNMkk1TWpsbU9Ua3dZMlV4TURKa01XWTJNamhsT0Y5c1pXRmtaMlZ1YVdWamIyOXJhV1ZvWVhOb0lnPT0iLCJleHAiOiIyMDI1LTAyLTA1VDEwOjU5OjU0LjI4N1oiLCJwdXIiOiJjb29raWUucmVtZW1iZXJfdG9rZW5fbGVhZGdlbmllX3YyIn19--ebda64f422ef72ad5dfcbcd405c2d1bc64f00882\"\n        },\n        {\n            \"domain\": \"app.apollo.io\",\n            \"hostOnly\": true,\n            \"httpOnly\": false,\n            \"name\": \"X-CSRF-TOKEN\",\n            \"path\": \"/\",\n            \"sameSite\": \"lax\",\n            \"secure\": true,\n            \"session\": true,\n            \"storeId\": null,\n            \"value\": \"wZJlSPBmMgvSylwbIto8v0fESy9ixsRUNfAYLS-TbfcPEdVxhyJ4lb10kGczkBuJinPuWR07JkXBGQBs7_QJ_g\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737731346,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__gspk\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"cmFrZXNoa3VtYXI4MzI1\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737731346,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__gsxid\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"BXj19arMfwegrZ\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737141136,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_landing_page\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"https://www.apollo.io/pricing\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737141136,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_referrer\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"https://www.apollo.io/\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737141392,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_utm_campaign\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"pricing_page\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737141392,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_utm_content\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"buy_now\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737731345,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_utm_gspartnerkey\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"rakeshkumar8325\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737141131,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_utm_medium\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"(none)\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1737141131,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_utm_source\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"(direct)\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__initial_utm_term\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"apollo%20io%20pricing\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__utm_campaign\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"gg_emea_dg_search_brand_en\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__utm_content\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"brand_pricing\"\n        },\n        {\n            \"domain\": \".apollo.io\",\n            \"expirationDate\": 1741258887,\n            \"hostOnly\": false,\n            \"httpOnly\": false,\n            \"name\": \"zp__utm_medium\",\n            \"path\": \"/\",\n            \"sameSite\": null,\n            \"secure\": false,\n            \"session\": false,\n            \"storeId\": null,\n            \"value\": \"cpc\"\n        }\n    ],\n    \"count\": 1000,\n    \"getEmails\": true,\n    \"guessedEmails\": false,\n    \"maxDelay\": 15,\n    \"minDelay\": 5,\n    \"proxy\": {\n        \"useApifyProxy\": true,\n        \"apifyProxyGroups\": [\n            \"RESIDENTIAL\"\n        ]\n    },\n    \"searchUrl\": \"https://app.apollo.io/#/people?page=1&includedOrganizationKeywordFields[]=tags&includedOrganizationKeywordFields[]=name&includedOrganizationKeywordFields[]=social_media_description&includedOrganizationKeywordFields[]=seo_description&qOrganizationKeywordTags[]=saas&personTitles[]=founder&personTitles[]=founder%20and%20ceo&personTitles[]=owner&organizationLocations[]=United%20States&organizationNumEmployeesRanges[]=11%2C20&organizationNumEmployeesRanges[]=21%2C50&sortAscending=false&sortByField=[none]&personNotTitles[]=VP&personNotTitles[]=Sales&personNotTitles[]=Product&personNotTitles[]=Vice&organizationNotIndustryTagIds[]=5567cd467369644d39040000&contactEmailStatusV2[]=likely_to_engage&contactEmailStatusV2[]=verified\",\n    \"startPage\": 1,\n    \"waitForVerification\": true\n}",
+        "options": {}
+      },
+      "id": "cc13e317-773d-4d59-8d96-3f8d26699f18",
+      "name": "Request Apollo Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2240,
+        3680
+      ],
+      "notes": "Bearer apify_api_XKBcenjb3kTEc8AYVwJY1O5TyIjZ3f2InUct"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Request Apollo Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Request": {
+      "main": [
+        [
+          {
+            "node": "Filter Needed Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Needed Fields": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Apollo Scraper": {
+      "main": [
+        [
+          {
+            "node": "Get Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "91e908ce-7dec-470b-934e-db1b6ec08169",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae59e6b831344dba624c99cbe778a4bc47150f8e64de86a8011d15bac8e58c21"
+  },
+  "id": "sITO4n14lggcpEjr",
+  "tags": []
+}

@@ -1,0 +1,871 @@
+{
+  "name": "Email Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "attachment_",
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        1568
+      ],
+      "id": "c1a48791-d5bd-4e3b-95e0-acb0f4e7bdb7",
+      "name": "Gmail Trigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        1808
+      ],
+      "id": "9dfaf214-afa0-4b25-9fa8-08015789e89e",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_5416414822481671773"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2448,
+        1936
+      ],
+      "id": "fa475e7a-8236-4f40-8edf-2d08a79ad444",
+      "name": "Gmail",
+      "webhookId": "2bf69557-c8f6-404d-9ae9-4bf91e995eb3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22f7977e-ba72-4971-b0c7-b68a3f5676ed",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Meeting Request",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "69c9b5b5-d3bd-46fd-a029-7154ef36c8bc",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2176,
+        1616
+      ],
+      "id": "454bc93d-d8a2-44de-b9bf-aab562bc2222",
+      "name": "Meeting Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22f7977e-ba72-4971-b0c7-b68a3f5676ed",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Follow Up Email",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "69c9b5b5-d3bd-46fd-a029-7154ef36c8bc",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2144,
+        2176
+      ],
+      "id": "4f5d0353-7ac8-4e3a-ad2f-6a5feb5deff3",
+      "name": "Follow Up Email"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22f7977e-ba72-4971-b0c7-b68a3f5676ed",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Client Inquiry",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "69c9b5b5-d3bd-46fd-a029-7154ef36c8bc",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2144,
+        1872
+      ],
+      "id": "0d4bbf3c-d806-4d3b-a370-3a3d2d4ed6ce",
+      "name": "Client Inquiry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22f7977e-ba72-4971-b0c7-b68a3f5676ed",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Complaint or Issue Report",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "69c9b5b5-d3bd-46fd-a029-7154ef36c8bc",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2144,
+        1328
+      ],
+      "id": "e6f32e65-9d3b-4a23-8a72-067d640701b6",
+      "name": "Support"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_5416414822481671773"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2448,
+        1296
+      ],
+      "id": "441e1ef7-2ace-4a7b-993a-11b378a21f8d",
+      "name": "Gmail1",
+      "webhookId": "2b2d4b2d-cefd-4d6f-99b0-57e467db5272"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_269397949618707096"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2448,
+        1632
+      ],
+      "id": "99b8656a-f659-4550-82f9-0d4730062bc7",
+      "name": "Gmail3",
+      "webhookId": "5234394a-bb95-46af-9dd6-2af8fb08ee1c"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_5416414822481671773"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2464,
+        2288
+      ],
+      "id": "829ee5d9-15a2-441e-ba21-9c80bedb721f",
+      "name": "Gmail4",
+      "webhookId": "54b1dc1e-eb86-496f-b599-069d0bc467b2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        1728
+      ],
+      "id": "42a1098d-1d06-499c-ad7e-512fc9381670",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "roberto@lunivate.com",
+          "mode": "list",
+          "cachedResultName": "roberto@lunivate.com"
+        },
+        "timeMin": "2025-02-09T19:10:09",
+        "timeMax": "2025-02-09T19:10:12",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        2848,
+        1760
+      ],
+      "id": "dfae0545-d4b5-48dc-a2ea-18c85a737d80",
+      "name": "Get Events"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"The subject line of the email\"\n    },\n    \"email\": {\n      \"type\": \"string\",\n      \"description\": \"The body content of the email\"\n    }\n  },\n  \"required\": [\"subject\", \"email\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2992,
+        1760
+      ],
+      "id": "80499a50-c337-48fa-8e4a-000e6cb62e1f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.email }}",
+        "options": {
+          "sendTo": "={{ $('Gmail Trigger').item.json.headers.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3232,
+        1568
+      ],
+      "id": "65b588c6-c8c3-49f6-8b2a-2f8937ee2656",
+      "name": "Draft",
+      "webhookId": "83b76aa5-e0dc-48a8-b0fe-383e23d22403"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        2160
+      ],
+      "id": "aa881673-a293-4d1e-b7e5-be3348685a9f",
+      "name": "OpenAI Chat Model2"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"The subject line of the email\"\n    },\n    \"email\": {\n      \"type\": \"string\",\n      \"description\": \"The body content of the email\"\n    }\n  },\n  \"required\": [\"subject\", \"email\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2896,
+        2176
+      ],
+      "id": "49f491f8-76de-4b38-98b9-b29f837c2410",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.email }}",
+        "options": {
+          "sendTo": "={{ $('Gmail Trigger').item.json.headers.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3248,
+        1936
+      ],
+      "id": "912c66f6-3938-4928-af01-f925f5470f9d",
+      "name": "Draft1",
+      "webhookId": "37bd9465-a165-4088-8a4c-ff5880287269"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2672,
+        1360
+      ],
+      "id": "95448eea-2ec3-4d14-82b3-995af410c21d",
+      "name": "OpenAI Chat Model3"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"The subject line of the email\"\n    },\n    \"email\": {\n      \"type\": \"string\",\n      \"description\": \"The body content of the email\"\n    }\n  },\n  \"required\": [\"subject\", \"email\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2896,
+        1376
+      ],
+      "id": "2ab8cb48-df48-4695-9c7a-e847a7a30014",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.email }}",
+        "options": {
+          "sendTo": "={{ $('Gmail Trigger').item.json.headers.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3216,
+        1168
+      ],
+      "id": "da567f73-6ad6-4454-bad9-2fd55df9e58f",
+      "name": "Draft2",
+      "webhookId": "5d064291-24c1-4e8d-ba50-ec0ed3733504"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        2592
+      ],
+      "id": "225c254f-f3df-4554-8bf5-7888da8b52bc",
+      "name": "OpenAI Chat Model5"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"The subject line of the email\"\n    },\n    \"email\": {\n      \"type\": \"string\",\n      \"description\": \"The body content of the email\"\n    }\n  },\n  \"required\": [\"subject\", \"email\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2896,
+        2592
+      ],
+      "id": "b36b6813-f9b1-4e2c-9274-acd0a578e6f7",
+      "name": "Structured Output Parser4"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.email }}",
+        "options": {
+          "sendTo": "={{ $('Gmail Trigger').item.json.headers.to }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3248,
+        2368
+      ],
+      "id": "e2bbd9e7-5968-47b4-8eeb-275d4a2061f8",
+      "name": "Draft4",
+      "webhookId": "dff1cbd6-e041-48a8-b90b-d96113600bec"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role & Objective:\nYou are an AI-powered email assistant specializing in crafting structured, professional, and personalized responses to client inquiries. Your task is to generate well-formatted replies based on the provided email content.\n\nInput Details:\nEmail Content: {{ $('Gmail Trigger').item.json.text }}\nEmail Date: {{ $('Gmail Trigger').item.json.headers.date }}\nCurrent Date/Time: {{ $now }}\nResponse Output Format:\nYour response must be formatted in JSON, containing:\n\n\"subject\" – A clear, relevant subject line.\n\"email_body\" – A well-structured, professional email response.\nGuidelines for Generating Responses:\nIf the client requests product details, provide an overview and mention any relevant attachments (e.g., brochure, pricing sheet).\nIf the client asks about service availability, confirm whether the service is available and outline next steps (e.g., scheduling a demo).\nIf the inquiry lacks details, request clarification while sharing general information.\nIf the client requests a meeting but no automated scheduling system is available, manually suggest time slots.\nExample Responses in JSON Format:\n1. Client Requests Pricing Information\nScenario:\nThe client is inquiring about pricing for a specific product or service.\n\nJSON Output:\n{\n  \"subject\": \"Re: Pricing Information for [Product/Service]\",\n  \"email_body\": \"Dear [Sender’s Name],\\n\\nThank you for reaching out! We appreciate your interest in [Product/Service Name]. Here’s an overview of our pricing options:\\n\\nBasic Plan: $XX/month – [Feature 1], [Feature 2]\\nPro Plan: $XX/month – [Feature 1], [Feature 2], [Feature 3]\\nEnterprise Plan: Custom pricing – Contact us for a tailored solution.\\n\\nIf you'd like to explore which option suits you best, we’d be happy to schedule a call. Let us know your availability!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n2. Client Inquires About Service Availability & Requests a Demo (No Calendar Access)\nScenario:\nThe client is asking whether a service is available and wants to schedule a demo, but an automated scheduling tool is not accessible.\n\nJSON Output:\n\n{\n  \"subject\": \"Re: Availability & Demo for [Service Name]\",\n  \"email_body\": \"Dear [Sender’s Name],\\n\\nThank you for your interest in [Service Name]! We’re pleased to confirm that our service is available in your region.\\n\\nWe’d love to walk you through the details with a live demo. Here are some available time slots:\\n\\n- Tuesday, 11:00 AM – 1:00 PM\\n- Thursday, 3:00 PM – 5:00 PM\\n\\nPlease confirm which time works for you, or feel free to suggest an alternative.\\n\\nLooking forward to connecting!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n3. Client Inquires About Service Availability & Requests a Demo (With Calendar Access)\nScenario:\nThe client is asking about service availability and would like to schedule a demo. The user has access to an automated scheduling system.\n\nJSON Output:\n\n{\n  \"subject\": \"Re: Availability & Demo for [Service Name]\",\n  \"email_body\": \"Dear [Sender’s Name],\\n\\nThank you for your interest in [Service Name]! We’re happy to confirm that our service is available in your region.\\n\\nTo schedule a demo at your convenience, please use the following link: [Insert Scheduling Link].\\n\\nAlternatively, if you prefer, here are some available time slots:\\n\\n- Tuesday, 11:00 AM – 1:00 PM\\n- Thursday, 3:00 PM – 5:00 PM\\n\\nLet us know what works best for you.\\n\\nLooking forward to connecting!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2704,
+        1952
+      ],
+      "id": "c1cf39d2-c332-4f87-acd6-bd57ee808251",
+      "name": "Inquiry Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role & Objective:\nYou are an AI-powered meeting coordinator responsible for processing meeting requests, suggesting available time slots, and scheduling events. Your responses should be structured, professional, and easy for recipients to confirm.\n\nInput Details:\nDate of Email: {{ $('Gmail Trigger').item.json.headers.date }}\nCurrent Date/Time: {{ $now }}\nResponse Format:\nYour response must be structured in JSON, containing:\n\n\"subject\" – A clear subject line.\n\"email_body\" – A well-organized and professional email response.\nAction Steps:\nIdentify the requested meeting date, time, and purpose from the email.\nSuggest available time slots for the meeting.\nProvide a scheduling link if applicable.\nEnsure the response is polite, professional, and easy to confirm.\nCalendar Management Responsibilities:\nUse \"Get Events\" to retrieve the user's schedule when needed.\nUse \"Delete Event\" to cancel a scheduled event (must first retrieve the event ID using \"Get Events\").\nIf no duration is specified for a meeting, assume one hour by default.\n\nExample Responses in JSON Format:\n1. Meeting Request with Available Time Slots\nScenario:\nThe sender is requesting a meeting, and you are suggesting available slots.\n\nJSON Output:\n{\n  \"subject\": \"Re: Scheduling a Meeting\",\n  \"email_body\": \"Dear [Sender’s Name],\\n\\nThank you for reaching out! Based on your request, here are my available time slots:\\n\\n- Tuesday, 11:00 AM – 1:00 PM\\n- Thursday, 3:00 PM – 5:00 PM\\n\\nPlease confirm which time works best for you, or feel free to suggest an alternative. You can also schedule directly using my calendar here: [Insert Calendar Link].\\n\\nLooking forward to our conversation!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n\n2. Meeting Confirmation with Calendar Event Created\nScenario:\nThe recipient has selected a time slot, and you confirm the scheduled meeting.\n\nJSON Output:\n{\n  \"subject\": \"Re: Meeting Confirmation for [Date & Time]\",\n  \"email_body\": \"Dear [Sender’s Name],\\n\\nThank you for confirming! Our meeting is scheduled for [Confirmed Date & Time]. Below are the details:\\n\\n- **Date:** [Confirmed Date]\\n- **Time:** [Confirmed Time]\\n- **Duration:** 1 hour\\n- **Meeting Link:** [Insert Meeting Link]\\n\\nYou will receive a calendar invite shortly. If you need to reschedule, feel free to let me know or use this link: [Insert Rescheduling Link].\\n\\nLooking forward to speaking with you!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n\n3. Meeting Rescheduling Request\nScenario:\nThe sender requests a reschedule, and you offer new time slots.\n\nJSON Output:\n{\n  \"subject\": \"Re: Rescheduling Your Meeting\",\n  \"email_body\": \"Dear [Sender’s Name],\\n\\nI understand that schedules can change! Here are some alternative time slots for rescheduling:\\n\\n- Wednesday, 2:00 PM – 4:00 PM\\n- Friday, 10:00 AM – 12:00 PM\\n\\nPlease let me know which option works for you, or feel free to suggest another time. You can also reschedule using this link: [Insert Rescheduling Link].\\n\\nLooking forward to our meeting!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2704,
+        1568
+      ],
+      "id": "91d65fd4-408e-40fb-8e8b-4f0e03ef9b5f",
+      "name": "Meeting Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role & Objective:\nYou are an AI-powered email responder specializing in handling customer support requests, including complaints, issue reports, and general inquiries. Your goal is to provide professional, well-structured, and solution-oriented responses.\n\nReplying on Behalf of:\nAgent Name: Damian Danelczyk\nCompany: Lunivate\nInput Details:\nEmail Content: {{ $('Gmail Trigger').item.json.text }}\nEmail Date: {{ $('Gmail Trigger').item.json.headers.date }}\nCurrent Date/Time: {{ $now }}\nResponse Format:\nYour response must be formatted in JSON, containing:\n\n\"subject\" – A clear, relevant subject line.\n\"email_body\" – A professional, structured email response.\nGuidelines for Handling Support Requests:\nTechnical Issues: Acknowledge the problem, suggest troubleshooting steps, and escalate if necessary.\nRefund/Compensation Requests: Follow company policy, outline eligibility criteria, and explain the next steps.\nIssues Requiring Investigation: Provide a case/reference number, inform the customer of the expected response time, and assure them of updates.\nGeneral Support Questions: Deliver a clear and helpful response while offering further assistance.\nTone: Maintain politeness, empathy, and a proactive approach to problem-solving.\n\nExample Responses in JSON Format:\n1. Customer Reporting a Technical Issue\nScenario:\nThe customer is experiencing a software error and needs troubleshooting assistance.\n\nJSON Output:\n{\n  \"subject\": \"Re: Technical Issue - Assistance Required\",\n  \"email_body\": \"Dear [Customer’s Name],\\n\\nThank you for reaching out. We’re sorry to hear that you’re experiencing issues with [Product/Service Name]. Based on your description, here are a few troubleshooting steps you can try:\\n\\n1. Restart the application and check if the issue persists.\\n2. Clear your cache and cookies if using a web-based service.\\n3. Ensure you’re using the latest version of the software.\\n\\nIf the issue continues, please provide the following details to help us investigate further:\\n\\n- Your device and operating system\\n- A screenshot of the error message\\n- Steps taken before the issue occurred\\n\\nYour case reference number is [Case #]. Our team is actively working on this, and we will provide an update within [Expected Resolution Time].\\n\\nWe appreciate your patience and look forward to resolving this for you!\\n\\nBest regards,\\n[Your Name]\\nLunivate Support Team\\n[Support Contact Info]\"\n}\n\n2. Customer Requesting a Refund\nScenario:\nThe customer is dissatisfied with a product or service and wants a refund.\n\nJSON Output:\n{\n  \"subject\": \"Re: Refund Request - [Order Number]\",\n  \"email_body\": \"Dear [Customer’s Name],\\n\\nWe’re sorry to hear that [Product/Service Name] did not meet your expectations. We understand how important this is and are here to assist.\\n\\nAs per our refund policy, refunds are processed within [Timeframe] if the request meets the following conditions:\\n\\n- The product was purchased within the last [Eligible Refund Period].\\n- The issue falls under our satisfaction guarantee.\\n- The request aligns with the terms outlined in our return/refund policy.\\n\\nTo proceed, please provide the following details:\\n\\n- Your order number: [Order #]\\n- Reason for the refund request\\n- Any supporting documentation (e.g., receipt, screenshots, issue details)\\n\\nOnce we receive this information, our team will review your request and confirm the next steps. If you need further assistance, please don’t hesitate to reach out.\\n\\nBest regards,\\n[Your Name]\\nLunivate Support Team\\n[Support Contact Info]\"\n}\n\n3. Customer Asking for General Support\nScenario:\nThe customer is requesting assistance with using a feature.\n\nJSON Output:\n{\n  \"subject\": \"Re: Assistance with [Feature/Service]\",\n  \"email_body\": \"Dear [Customer’s Name],\\n\\nThank you for reaching out! We’re happy to assist you with using [Feature Name] in [Product/Service Name].\\n\\nHere’s a step-by-step guide to help you get started:\\n\\n1. Navigate to [Location in the App/Website].\\n2. Click on [Feature Name] and select your desired option.\\n3. Follow the on-screen instructions to complete the process.\\n\\nFor a more detailed walkthrough, you can refer to our help center article here: [Insert Help Article Link].\\n\\nIf you need further assistance, feel free to reach out, and we’d be happy to help!\\n\\nBest regards,\\n[Your Name]\\nLunivate Support Team\\n[Support Contact Info]\"\n}\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2704,
+        1168
+      ],
+      "id": "4bff09b1-059d-4952-a0de-3a8a531139e8",
+      "name": "Support Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role & Objective:\nYou are an AI-powered assistant specializing in follow-up emails, handling delayed responses, unanswered messages, and re-engagement efforts professionally and efficiently. Your task is to generate structured, personalized, and professional follow-up emails based on the context of the original email.\n\nInput Details:\nEmail Content: {{ $('Gmail Trigger').item.json.text }}\nEmail Date: {{ $('Gmail Trigger').item.json.headers.date }}\nCurrent Date/Time: {{ $now }}\nResponse Format:\nYour response must be structured in JSON, containing:\n\n\"subject\" – A concise and relevant subject line.\n\"email_body\" – A well-organized and professional email response.\nGuidelines for Follow-Up Emails:\nBusiness Proposals/Offers: Politely remind the recipient about the previous email and ask if they need any clarification.\nMeeting Requests: Follow up to confirm availability or suggest alternative time slots.\nSupport Requests: Check if the issue has been resolved and offer additional assistance if needed.\nSignificant Delays in Follow-Up: Acknowledge the time gap professionally and re-engage in a way that encourages a response.\nTone: Maintain a polite, professional, and non-pushy approach while encouraging action.\nExample Responses in JSON Format:\n1. Follow-Up on a Business Proposal\nScenario:\nThe sender previously sent a proposal, but the recipient has not responded.\n\nJSON Output:\n{\n  \"subject\": \"Re: Following Up on Our Proposal\",\n  \"email_body\": \"Dear [Recipient’s Name],\\n\\nI hope you're doing well! I wanted to follow up on my previous email regarding our proposal for [Project Name]. Please let me know if you need any additional details or if we can schedule a time to discuss further.\\n\\nLooking forward to your response.\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n\n2. Follow-Up on a Meeting Request\nScenario:\nThe sender previously requested a meeting but has not received a confirmation.\n\nJSON Output:\n{\n  \"subject\": \"Re: Checking in on Meeting Availability\",\n  \"email_body\": \"Dear [Recipient’s Name],\\n\\nI wanted to check in on my previous email regarding our meeting request for [Meeting Topic]. If you're still interested, here are my available time slots:\\n\\n- Monday, 10:00 AM – 12:00 PM\\n- Wednesday, 3:00 PM – 5:00 PM\\n\\nPlease let me know if one of these times works for you, or feel free to suggest an alternative. Looking forward to your response!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n\n3. Follow-Up on a Support Request\nScenario:\nA customer submitted a support request but has not responded to a previous resolution or troubleshooting email.\n\nJSON Output:\n{\n  \"subject\": \"Re: Checking in on Your Support Request\",\n  \"email_body\": \"Dear [Customer’s Name],\\n\\nI wanted to follow up on your support request regarding [Issue Topic]. We previously provided a potential solution, and I’d like to check if the issue has been resolved or if you need any further assistance.\\n\\nIf the issue persists, please let us know so we can investigate further and ensure everything is working properly for you.\\n\\nLooking forward to your update!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\\n[Support Contact Info]\"\n}\n\n\n4. Follow-Up on a Cold Email or Networking Attempt\nScenario:\nThe sender reached out for networking or business collaboration, but the recipient has not responded.\n\nJSON Output:\n{\n  \"subject\": \"Re: Just Following Up – Looking Forward to Connecting\",\n  \"email_body\": \"Dear [Recipient’s Name],\\n\\nI hope you're doing well! I wanted to follow up on my last message regarding [Networking/Collaboration Topic]. I’d still love the opportunity to connect and explore how we can work together.\\n\\nPlease let me know if you’re available for a quick call, or if there’s a better time to reach out. Looking forward to hearing from you!\\n\\nBest regards,\\n[Your Name]\\n[Company Name]\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2704,
+        2368
+      ],
+      "id": "cc5c0476-c9e6-46d7-a834-d70fc3619039",
+      "name": "Follow Up Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=AI Email Classification Assistant\n\nTask Overview:\nYou are an AI assistant designed to categorize emails for streamlined processing.\n\nObjective:\nYour role is to analyze the content of each email and classify it into one of the following categories:\n\nFollow-Up Email – The sender is referencing a previous email and checking for updates.\nClient Inquiry – A prospective or existing client is requesting details about a product or service.\nSupport – A customer or team member is reporting an issue or requesting technical assistance.\nMeeting Request – The sender is asking to schedule a meeting or call.\nIntroduction Email – Someone is introducing themselves or another person.\nInstructions:\nCarefully examine the email text, identify key indicators, and determine the appropriate category.\n\nOutput Format:\nProvide only the category name, without any additional context or explanation.\n\nExample Output:\nClient Inquiry\n\nEmail:{{ $json.text }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1696,
+        1568
+      ],
+      "id": "a1cb3021-366f-4c36-aac8-7acdd0625d9e",
+      "name": "Classifier Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Classifier Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classifier Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client Inquiry": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Support": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting Request": {
+      "main": [
+        [
+          {
+            "node": "Gmail3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up Email": {
+      "main": [
+        [
+          {
+            "node": "Gmail4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Inquiry Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail3": {
+      "main": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Meeting Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Inquiry Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Inquiry Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Support Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Support Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail1": {
+      "main": [
+        [
+          {
+            "node": "Support Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Follow Up Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Follow Up Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail4": {
+      "main": [
+        [
+          {
+            "node": "Follow Up Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inquiry Agent": {
+      "main": [
+        [
+          {
+            "node": "Draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting Agent": {
+      "main": [
+        [
+          {
+            "node": "Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Support Agent": {
+      "main": [
+        [
+          {
+            "node": "Draft2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up Agent": {
+      "main": [
+        [
+          {
+            "node": "Draft4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier Agent": {
+      "main": [
+        [
+          {
+            "node": "Support",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Meeting Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Client Inquiry",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Follow Up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0b874eab-fb56-4166-ae14-28e0ccfe3feb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "906087f92c274754ed667f19aa12765185db71d0b5be4c5fb2fe90d44fed3046"
+  },
+  "nodeGroups": [],
+  "id": "9EzQWtApxnPRFaf5",
+  "tags": []
+}
